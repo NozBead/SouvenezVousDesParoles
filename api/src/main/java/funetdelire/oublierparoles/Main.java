@@ -10,6 +10,7 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import funetdelire.oublierparoles.database.SongsData;
+import funetdelire.oublierparoles.filter.OriginFilter;
 
 public class Main {
 
@@ -18,6 +19,7 @@ public class Main {
 	public static void main(String[] args) throws IOException, URISyntaxException, SQLException {
 		SongsData.setInstance(new SongsData());
 		ResourceConfig resourceConfig = new ResourceConfig().packages("funetdelire.oublierparoles.resources");
+		resourceConfig.register(OriginFilter.class);
         GrizzlyHttpServerFactory.createHttpServer(new URI(BASE_URI), resourceConfig);
 	}
 }
