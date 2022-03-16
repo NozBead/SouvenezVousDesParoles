@@ -43,7 +43,7 @@ class SongApi {
         headers: {
           'Content-Type': 'application/json'
         },
-        redirect: 'follow',
+        redirect: 'manual',
         referrerPolicy: 'no-referrer',
         body: undefined
     };

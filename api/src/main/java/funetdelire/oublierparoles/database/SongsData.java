@@ -51,6 +51,27 @@ public class SongsData {
 		}
 	}
 	
+	public List<Song> getSongByDifficulty(int diff) {
+		List<Song> songs = new LinkedList<>();
+		try {
+			PreparedStatement statement = sqliteCon.prepareStatement(
+					"SELECT id, name, url FROM song WHERE difficulty = ?");
+			statement.setInt(1, diff);
+			ResultSet result = statement.executeQuery();
+			while (result.next()) {
+				try {
+					Song song = new Song(result.getInt("id"), result.getString("name"), new URL(result.getString("url")));
+					songs.add(song);
+				} catch (MalformedURLException e) {
+					throw new SQLException();
+				}
+			}
+			return songs;
+		} catch (SQLException e) {
+			throw new ResourceSqlException();
+		}
+	}
+	
 	public List<Song> getSongByTheme(String theme) {
 		List<Song> songs = new LinkedList<>();
 		try {

@@ -3,9 +3,13 @@ CREATE TABLE song (
 	id INTEGER,
 	name TEXT,
 	url TEXT,
+	difficulty INTEGER,
+	guess_time INTEGER,
 	CONSTRAINT pk_song PRIMARY KEY (id),
 	CONSTRAINT forced_url CHECK (url NOT NULL),
 	CONSTRAINT forced_name CHECK (name NOT NULL)
+	CONSTRAINT forced_difficulty CHECK (difficulty NOT NULL),
+	CONSTRAINT forced_guess_time CHECK (guess_time NOT NULL)
 );
 
 DROP TABLE IF EXISTS theme;
