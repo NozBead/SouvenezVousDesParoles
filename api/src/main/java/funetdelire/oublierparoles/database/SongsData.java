@@ -1,7 +1,7 @@
 package funetdelire.oublierparoles.database;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,6 +13,7 @@ import java.util.List;
 
 import funetdelire.oublierparoles.exception.ResourceSqlException;
 import funetdelire.oublierparoles.lyrics.Song;
+import funetdelire.oublierparoles.lyrics.Theme;
 
 public class SongsData {
 	private static SongsData instance;
@@ -30,66 +31,57 @@ public class SongsData {
 	public SongsData() throws SQLException {
 		sqliteCon = DriverManager.getConnection("jdbc:sqlite:.paroles.db");
 	}
-
-	public Song getSongById(int id) {
-		Song song = null;
-		try {
-			PreparedStatement statement = sqliteCon.prepareStatement(
-					"SELECT id, name, url FROM song WHERE id = ?");
-			statement.setInt(1, id);
-			ResultSet result = statement.executeQuery();
-			while (result.next()) {
-				try {
-					song = new Song(result.getInt("id"), result.getString("name"), new URL(result.getString("url")));
-				} catch (MalformedURLException e) {
-					throw new SQLException();
-				}
-			}
-			return song;
-		} catch (SQLException e) {
-			throw new ResourceSqlException();
-		}
-	}
 	
-	public List<Song> getSongByDifficulty(int diff) {
-		List<Song> songs = new LinkedList<>();
+	public List<Integer> getThemeByDifficulty(int diff) {
+		List<Integer> themes = new LinkedList<>();
 		try {
 			PreparedStatement statement = sqliteCon.prepareStatement(
-					"SELECT id, name, url FROM song WHERE difficulty = ?");
+					"SELECT id FROM theme WHERE difficulty = ?");
 			statement.setInt(1, diff);
 			ResultSet result = statement.executeQuery();
 			while (result.next()) {
-				try {
-					Song song = new Song(result.getInt("id"), result.getString("name"), new URL(result.getString("url")));
-					songs.add(song);
-				} catch (MalformedURLException e) {
-					throw new SQLException();
-				}
+				themes.add(result.getInt(1));
 			}
-			return songs;
+			return themes;
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new ResourceSqlException();
 		}
 	}
 	
-	public List<Song> getSongByTheme(String theme) {
-		List<Song> songs = new LinkedList<>();
+	public InputStream getSongVideo(int songId) {
 		try {
 			PreparedStatement statement = sqliteCon.prepareStatement(
-					"SELECT id, name, url FROM song, song_per_theme WHERE id = song_id AND theme_name = ?");
-			statement.setString(1, theme);
+					"SELECT video FROM song WHERE id = ?");
+			statement.setInt(1, songId);
+			ResultSet result = statement.executeQuery();
+			while (result.next()) {
+				byte[] file = result.getBytes(1);
+				return new ByteArrayInputStream(file);
+			}
+			return null;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ResourceSqlException();
+		}
+	}
+	
+	public Theme getSongByTheme(int themeId) {
+		Theme theme = new Theme();
+		try {
+			PreparedStatement statement = sqliteCon.prepareStatement(
+					"SELECT song.id, song.name, theme.name, lyrics, context, context_time, guess_time FROM song, theme WHERE theme = ? AND song.theme = theme.id");
+			statement.setInt(1, themeId);
 			ResultSet result = statement.executeQuery();
 			while (result.next()) {
 				Song s;
-				try {
-					s = new Song(result.getInt("id"), result.getString("name"), new URL(result.getString("url")));
-				} catch (MalformedURLException e) {
-					throw new SQLException();
-				}
-				songs.add(s);
+				s = new Song(result.getInt(1), result.getString(2), result.getString(4), result.getString(5), result.getInt(6), result.getInt(7));
+				theme.addSong(s);
+				theme.setName(result.getString(3));
 			}
-			return songs;
+			return theme;
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new ResourceSqlException();
 		}
 	}
@@ -104,6 +96,7 @@ public class SongsData {
 			}
 			return themes;
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new ResourceSqlException();
 		}
 	}

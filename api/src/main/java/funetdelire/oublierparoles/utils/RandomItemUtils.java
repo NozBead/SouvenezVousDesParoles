@@ -1,6 +1,8 @@
 package funetdelire.oublierparoles.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -25,9 +27,12 @@ public class RandomItemUtils {
 			String itemRoot) {
 		try {
 			R item = pickupRandom(items, excluded, mapper);
-			return Response.seeOther(baseUri.resolve(itemRoot + '/' + mapper.apply(item))).build();
+			String itemEncoded =  URLEncoder.encode(mapper.apply(item).toString(), "UTF-8");
+			return Response.seeOther(baseUri.resolve(itemRoot + '/' + itemEncoded)).build();
 		} catch (NoSuchElementException e) {
 			return Response.status(Status.NOT_FOUND).build();
+		} catch (UnsupportedEncodingException e) {
+			return Response.serverError().build();
 		}
 	}
 }

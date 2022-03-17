@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.jsonb.JsonBindingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import funetdelire.oublierparoles.database.SongsData;
@@ -20,6 +21,7 @@ public class Main {
 		SongsData.setInstance(new SongsData());
 		ResourceConfig resourceConfig = new ResourceConfig().packages("funetdelire.oublierparoles.resources");
 		resourceConfig.register(OriginFilter.class);
+		resourceConfig.register(JsonBindingFeature.class);
         GrizzlyHttpServerFactory.createHttpServer(new URI(BASE_URI), resourceConfig);
 	}
 }

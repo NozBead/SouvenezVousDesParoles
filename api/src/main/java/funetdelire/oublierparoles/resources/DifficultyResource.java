@@ -3,7 +3,6 @@ package funetdelire.oublierparoles.resources;
 import java.util.List;
 
 import funetdelire.oublierparoles.database.SongsData;
-import funetdelire.oublierparoles.lyrics.Song;
 import funetdelire.oublierparoles.utils.RandomItemUtils;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -24,9 +23,9 @@ public class DifficultyResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getRandomSongOfDifficulty(@PathParam("difficulty") int difficulty, List<Integer> excludeList) {
-		List<Song> songs = SongsData.getInstance().getSongByDifficulty(difficulty);
-		return RandomItemUtils.randomItemResponse(currentUri.getBaseUri(), songs, excludeList, s -> s.getId(),
-				SongResource.class.getAnnotation(Path.class).value());
+	public Response getRandomThemeOfDifficulty(@PathParam("difficulty") int difficulty, List<Integer> excludeList) {
+		List<Integer> themes = SongsData.getInstance().getThemeByDifficulty(difficulty);
+		return RandomItemUtils.randomItemResponse(currentUri.getBaseUri(), themes, excludeList, s -> s,
+				ThemeResource.class.getAnnotation(Path.class).value());
 	}
 }

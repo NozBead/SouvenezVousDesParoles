@@ -1,28 +1,28 @@
 DROP TABLE IF EXISTS song;
 CREATE TABLE song (
 	id INTEGER,
+	theme INTEGER,
 	name TEXT,
-	url TEXT,
-	difficulty INTEGER,
+	lyrics TEXT,
+	context TEXT,
+	context_time INTEGER,
 	guess_time INTEGER,
+	video BLOB,
 	CONSTRAINT pk_song PRIMARY KEY (id),
-	CONSTRAINT forced_url CHECK (url NOT NULL),
+	CONSTRAINT fk_theme FOREIGN KEY (theme) REFERENCES theme(id),
 	CONSTRAINT forced_name CHECK (name NOT NULL)
-	CONSTRAINT forced_difficulty CHECK (difficulty NOT NULL),
+	CONSTRAINT forced_lyrics CHECK (lyrics NOT NULL),
+	CONSTRAINT forced_context CHECK (context NOT NULL),
+	CONSTRAINT forced_context_time CHECK (context_time NOT NULL),
 	CONSTRAINT forced_guess_time CHECK (guess_time NOT NULL)
 );
 
 DROP TABLE IF EXISTS theme;
 CREATE TABLE theme (
+	id INTEGER,
 	name TEXT,
-	CONSTRAINT pk_theme PRIMARY KEY (name)
-);
-
-DROP TABLE IF EXISTS song_per_theme;
-CREATE TABLE song_per_theme (
-	song_id INTEGER,
-	theme_name TEXT,
-	CONSTRAINT pk_song PRIMARY KEY (song_id, theme_name),
-	CONSTRAINT fk_song FOREIGN KEY (song_id) REFERENCES song(id),
-	CONSTRAINT fk_theme FOREIGN KEY (theme_name) REFERENCES theme(name)
+	difficulty INTEGER,
+	CONSTRAINT pk_theme PRIMARY KEY (id),
+	CONSTRAINT forced_difficulty CHECK (difficulty NOT NULL)
+	CONSTRAINT forced_name CHECK (name NOT NULL)
 );
