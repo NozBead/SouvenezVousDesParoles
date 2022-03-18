@@ -1,5 +1,4 @@
-class ParolesGame {
-    encounteredThemes = [];
+class LyricsGame {
 	themes = {};
 	
 	guessTimeoutId;
@@ -7,53 +6,50 @@ class ParolesGame {
 	currentTheme;
 	currentSong;
 	
+	currentSongView;
+	
     songApi;
 
-    parolesView;
+    spaces;
+	
+	guessManager;
 
-    constructor (parolesView) {
-		this.parolesView = parolesView;
-        this.songApi = new SongApi("http://localhost:8080");
-    }
-
-    downloadThemes() {
-	let promises = [];
-		for (let i = 1 ; i <= 5 ; i++) {
-			promises.push(this.songApi.getRandomTheme(this.encounteredThemes, i)
-			.then(response => { 
-					this.encounteredThemes.push(response.url.split('/').pop());
-					return response.json();
-				})
-			.then(data => {
-				let name = data['name'];
-				this.themes[name] = {};
-				this.themes[name]['songs'] = data['songs'];
-				this.themes[name]['difficulty'] = i;
-				return name;
-			}));
-		}
-		return Promise.all(promises);
+    constructor (spaces, api, guessManager) {
+		this.spaces = spaces;
+        this.songApi = api;
+		this.guessManager = guessManager;
     }
 	
-	proposeThemes() {
-		for (let [key, value] of Object.entries(this.themes)) {
-			this.parolesView.themesDrawer(key, value['difficulty']*10);
+	clean() {
+		this.spaces.buttonSpace.innerHTML = "";
+		this.spaces.guessSpace.innerHTML = "";
+		this.spaces.contextSpace.innerHTML = "";
+		this.spaces.titleSpace.innerHTML = "";
+		this.spaces.answerSpace.innerHTML = "";
+
+		this.spaces.guessSpace.classList.remove("bg-success", "bg-danger");
+		this.spaces.guessSpace.style.setProperty("color", "lightslategray");
+		const video = document.querySelector("#karaoke");
+		if (video) {
+			video.remove();
 		}
 	}
 
+	proposeThemes() {
+		let view = new ThemesView(this, spaces, Object.entries(this.themes));
+		view.draw();
+	}
+
     chooseTheme(theme) {
-		this.parolesView.cleaner();
+		this.clean();
         this.currentTheme = this.themes[theme];
-		let i = 0;
-		for (let song of this.currentTheme['songs']) {
-			this.parolesView.songsDrawer(song['name'], i);
-			i++;
-		}
+		let view = new SongsView(this, spaces, this.currentTheme['songs']);
+		view.draw();
 		delete this.themes[theme];
     }
 	
 	chooseSong(idx) {
-		this.parolesView.cleaner();
+		this.clean();
 		if (idx == -1) {
 			this.proposeThemes();
 		}
@@ -61,7 +57,8 @@ class ParolesGame {
 			let song = this.currentTheme['songs'][idx]
 			let url = this.songApi.getSongUrl(song['id'])
 			this.currentSong = song;
-			this.parolesView.songDrawer(url, song, this.currentTheme['difficulty']*10);
+			this.currentSongView = new SongView(game, spaces, url, song, this.currentTheme['difficulty']*10);
+			this.currentSongView.draw();
 		}
 	}
 	
@@ -75,42 +72,242 @@ class ParolesGame {
 		
 		let contextTime = (this.currentSong['contextTime'] - currentTime) * 1000;
 		let guessTime = (this.currentSong['guessTime'] - currentTime) * 1000;
-		this.guessTimeoutId = setTimeout(this.startGuess.bind(this), guessTime);
-		this.contextTimeoutId = setTimeout(this.startContext.bind(this), contextTime);
-	}
-	
-	startGuess() {
-		this.parolesView.guessDrawer(this.currentSong['lyrics']);
-	}
-	
-	startContext() {
-		this.parolesView.songHider();
-		this.parolesView.contextDrawer(this.currentSong['context']);
+		this.guessTimeoutId = setTimeout(this.currentSongView.drawGuess.bind(this.currentSongView), guessTime);
+		this.contextTimeoutId = setTimeout(this.currentSongView.drawContext.bind(this.currentSongView), contextTime);
 	}
 }
 
-class ParolesView {
-	themesDrawer;
-	songsDrawer;
-	songDrawer;
-	guessDrawer;
-	contextDrawer
-	songHider;
-	cleaner;
+class LyricsView {
+	game;
+	spaces;
 	
-	constructor (themesDrawer, songsDrawer, songDrawer, songHider, guessDrawer, contextDrawer, cleaner) {
-		this.themesDrawer = themesDrawer;
-		this.songsDrawer = songsDrawer;
-		this.songDrawer = songDrawer;
-		this.songHider = songHider;
-		this.guessDrawer = guessDrawer;
-		this.contextDrawer = contextDrawer;
-		this.cleaner = cleaner;
+	constructor(game, spaces) {
+		this.game = game;
+		this.spaces = spaces;
+	}
+	
+	draw(){};	
+}
+
+class ThemesView extends LyricsView {
+	themes;
+
+	constructor (game, spaces, themes) {
+		super(game, spaces);
+		this.themes = themes;
+	}
+	
+	draw() {
+		for (let [key, value] of this.themes) {
+			this.createThemeButton(key, value['difficulty']*10);
+		}
+	}
+	
+	createThemeButton(choice, points) {
+		const button = document.createElement("button");
+		button.classList.add("btn");
+		button.classList.add("btn-outline-primary");
+		button.classList.add("btn-lg");
+		button.classList.add("d-flex");
+		button.classList.add("p-0");
+		
+		const pts = document.createElement("div");
+		pts.classList.add("p-2");
+		pts.classList.add("border-end");
+		pts.classList.add("border-primary");
+		pts.innerHTML = points + "pts";
+		
+		const name = document.createElement("div");
+		name.classList.add("p-1");
+		name.classList.add("flex-grow-1");
+		name.innerHTML = choice;
+	  
+		button.addEventListener('click', e => this.game.chooseTheme(choice));
+		this.spaces.buttonSpace.appendChild(button);
+		button.appendChild(pts);
+		button.appendChild(name);
+	}
+}
+
+class SongsView extends LyricsView {
+	songs;
+	
+	constructor (game, spaces, songs) {
+		super(game, spaces);
+		this.songs = songs;
+	}
+	
+	draw() {
+		let i = 0;
+		for (let song of this.songs) {
+			this.createSongButton(song['name'], i);
+			i++;
+		}
+	}
+	
+	createSongButton(song, idx) {
+		const button = document.createElement("button");
+		button.classList.add("btn");
+		button.classList.add("btn-outline-primary");
+		button.classList.add("btn-lg");
+		
+		button.innerHTML = song;
+	  
+		button.addEventListener('click', e => this.game.chooseSong(idx));
+		this.spaces.buttonSpace.appendChild(button);
+	}
+}
+
+class SongView extends LyricsView {
+	song;
+	guessManager;
+	
+	constructor (game, spaces, url, song, pts) {
+		super(game, spaces);
+		this.song = song;
+		this.space = spaces.space;
+		this.titleSpace = spaces.titleSpace;
+		this.url = url;
+		this.pts = pts;
+		this.guessManager = new GuessManagerView(game, spaces, song['lyrics']);
+	}
+	
+	draw() {
+		const video = document.createElement("video");
+		video.classList.add("h-50");
+		video.classList.add("w-50");
+		video.id = "karaoke";
+		video.setAttribute("controls", "");
+		
+		video.addEventListener("play", e => {
+			const video = document.querySelector("#karaoke");
+			this.game.startGuessTime(video.currentTime);
+		});
+		
+		const source = document.createElement("source");
+		source.type = "video/mp4";
+		source.src = this.url;
+
+		this.spaces.titleSpace.innerHTML = this.song['name'] + " " + this.pts + "pts";
+		
+		this.space.prepend(video);
+		video.append(source);
+	}
+	
+	drawGuess() {
+		this.guessManager.draw();
+	}
+
+	drawContext() {
+		this.spaces.contextSpace.innerHTML = this.song['context'];
+		this.hideSong();
+	}
+
+	hideSong() {
+		const video = document.querySelector("#karaoke");
+		video.classList.add("visually-hidden");
+	}
+}
+
+class GuessManagerView extends LyricsView {
+	accuteReplacement = [ 	{regex:/[éèêë]/g, replacement:'e'}, 
+							{regex:/[à]/g, replacement:'a'},
+							{regex:/[ùû]/g, replacement:'u'}];
+							
+	normalCharRegex = '[a-zA-Zéêàèçùûë]';
+	normalCharG = new RegExp(this.normalCharRegex,'g');
+	normalCharI = new RegExp(this.normalCharRegex,'i');
+	
+	hiddenGuess;
+	idxGuess;
+	toGuess;
+	
+	kbdHandler;
+	
+	constructor(game, spaces, toGuess) {
+		super(game, spaces);
+		this.toGuess = toGuess;
+		const hidden = toGuess.replaceAll(this.normalCharG, "_");
+		this.hiddenGuess = Array.from(hidden);
+		this.idxGuess = 0;
+	}
+	
+	draw() {
+		this.spaces.guessSpace.innerHTML = this.hiddenGuess.join("");
+		const button = document.createElement("button");
+		button.classList.add("btn");
+		button.classList.add("btn-outline-primary");
+		button.classList.add("btn-lg");
+		this.kbdHandler = this.handleKeyboard.bind(this);
+		document.addEventListener("keydown", this.kbdHandler);
+	}
+	
+	refreshInput(inputChar) {
+		let direction;
+		if (inputChar == -1) {
+			let notFound = true;
+			while (this.idxGuess > 0 && notFound && this.idxGuess < this.hiddenGuess.length) {
+				this.idxGuess--;
+				if (this.normalCharI.test(this.hiddenGuess[this.idxGuess])) {
+					notFound = false;
+				}
+			}
+			this.hiddenGuess[this.idxGuess] = '_';
+		}
+		else {
+			this.hiddenGuess[this.idxGuess] = inputChar;
+			let notFound = true;
+			while (this.idxGuess >= 0 && notFound && this.idxGuess < this.hiddenGuess.length) {
+				this.idxGuess++;
+				if (this.hiddenGuess[this.idxGuess] == '_') {
+					notFound = false;
+				}
+			}
+		}
+		
+		
+		this.spaces.guessSpace.innerHTML = this.hiddenGuess.join("");
+	}
+	
+	handleKeyboard(e) {
+		if (e.key == 'Backspace') {
+			this.refreshInput(-1);
+		}
+		else if (e.key == 'Enter') {
+			const normalInput = this.normalizeString(this.hiddenGuess.filter(c => c != '_').join(""));
+			const normalToGuess = this.normalizeString(this.toGuess);
+				
+			let back = "bg-success";
+			if (normalInput != normalToGuess) {
+				back = "bg-danger";
+			}
+			this.spaces.guessSpace.classList.add(back);
+			this.spaces.guessSpace.style.setProperty("color", "white");
+					
+			this.spaces.answerSpace.innerHTML = "Réponse :<br>" + this.toGuess;
+			document.removeEventListener("keydown", this.kbdHandler);
+			new SongsView(game, spaces, []).createSongButton("Round suivant", -1);
+		}
+		else {
+			let c = e.key.at(0);
+			if (this.normalCharI.test(c)) {
+				this.refreshInput(c);
+			}
+		}
+	}
+
+	normalizeString(str) {
+		let result = str;
+		for (let t of this.accuteReplacement) {
+			result = result.replaceAll(t.regex, t.replacement);
+		}
+		return result.toLowerCase();
 	}
 }
 
 class SongApi {
     baseUrl;
+	encounteredThemes = [];
     
     init = {
         method: 'POST',
@@ -137,154 +334,38 @@ class SongApi {
 	getSongUrl(id) {
 		return this.baseUrl + "/songs/" + id + ".mp4";
 	}
-}
-
-
-let view = new ParolesView(createThemeButton, createSongButton, drawSong, hideSong, drawGuess, drawContext, clean);
-let game = new ParolesGame(view);
-game.downloadThemes()
-	.then(e => game.proposeThemes());
-
-const buttonSpace = document.querySelector("#buttonspace");
-const space = document.querySelector("#space");
-const guessSpace = document.querySelector("#guessspace");
-const contextSpace = document.querySelector("#contextspace");
-const titleSpace = document.querySelector("#titlespace");
-const answerSpace = document.querySelector("#answerspace");
-
-function clean() {
-	buttonSpace.innerHTML = "";
-	guessSpace.innerHTML = "";
-	contextSpace.innerHTML = "";
-	titleSpace.innerHTML = "";
-	answerSpace.innerHTML = "";
-	hiddenGuess = "";
-	inputGuess = [];
-	const video = document.querySelector("#karaoke");
-	if (video) {
-		video.remove();
-	}
-}
-
-let hiddenGuess = "";
-let inputGuess = [];
-function refreshInput() {
-	let display = "";
-	const inputIt = inputGuess.entries();
-	for (let c of hiddenGuess) {
-		if (c == '_') {
-			const result = inputIt.next();
-			if (result.done) {
-				display += '_';
-			}
-			else {
-				display += result.value[1];
-			}
-		}
-		else {
-			display += c;
-		}
-	}
-
-	guessSpace.innerHTML = display;
-}
-
-const regex = '[a-zA-Zéêàèçù]';
-const regexG = new RegExp(regex,'g');
-const regexI = new RegExp(regex,'i');
-function drawGuess(toGuess) {
-	hiddenGuess = toGuess.replaceAll(regexG, "_");
-	guessSpace.innerHTML = hiddenGuess;
-
-	const button = document.createElement("button");
-    button.classList.add("btn");
-    button.classList.add("btn-outline-primary");
-    button.classList.add("btn-lg");
-	let handler = e => {
-		if (e.key == 'Backspace') {
-			inputGuess.pop();
-			refreshInput();
-		}
-		else if (e.key == 'Enter') {
-			answerSpace.innerHTML = "Réponse :<br>" + toGuess;
-			document.removeEventListener("keydown", handler);
-			createSongButton("Round suivant", -1);
-		}
-		else {
-			let c = e.key.at(0);
-			if (regexI.test(c)) {
-				inputGuess.push(c);
-				refreshInput();
-			}
-		}
-	};
-	document.addEventListener("keydown", handler);
-}
-
-function drawContext(context) {
-	contextSpace.innerHTML = context;
-}
-
-function drawSong(url, song, pts) {
-	const video = document.createElement("video");
-	video.classList.add("h-50");
-	video.classList.add("w-50");
-	video.id = "karaoke";
-	video.setAttribute("controls", "");
 	
-	video.addEventListener("play", e => {
-		const video = document.querySelector("#karaoke");
-		game.startGuessTime(video.currentTime);
+	downloadThemes(nbr) {
+		let promises = [];
+		for (let i = 1 ; i <= nbr ; i++) {
+			promises.push(this.getRandomTheme(this.encounteredThemes, i)
+			.then(response => { 
+					this.encounteredThemes.push(response.url.split('/').pop());
+					return response.json();
+				})
+			.then(data => {
+				let obj = {};
+				obj['songs'] = data['songs'];
+				obj['difficulty'] = i;
+				return [data['name'], obj];
+			}));
+		}
+		return Promise.all(promises);
+    }
+}
+
+let spaces = {
+	buttonSpace: document.querySelector("#buttonspace"),
+	space: document.querySelector("#space"),
+	guessSpace: document.querySelector("#guessspace"),
+	contextSpace: document.querySelector("#contextspace"),
+	titleSpace: document.querySelector("#titlespace"),
+	answerSpace: document.querySelector("#answerspace")
+}
+let api = new SongApi("http://localhost:8080");
+let game = new LyricsGame(spaces, api);
+api.downloadThemes(5)
+	.then(e => {
+		game.themes = Object.fromEntries(e);
+		game.proposeThemes();
 	});
-	
-	const source = document.createElement("source");
-	source.type = "video/mp4";
-	source.src = url;
-
-	titleSpace.innerHTML = song['name'] + " " + pts + "pts";
-	
-	space.prepend(video);
-	video.append(source);
-}
-
-function hideSong() {
-	const video = document.querySelector("#karaoke");
-	video.classList.add("visually-hidden");
-}
-
-function createSongButton(song, idx) {
-    const button = document.createElement("button");
-    button.classList.add("btn");
-    button.classList.add("btn-outline-primary");
-    button.classList.add("btn-lg");
-	
-	button.innerHTML = song;
-  
-    button.addEventListener('click', e => game.chooseSong(idx));
-    buttonSpace.appendChild(button);
-}
-
-function createThemeButton(choice, points) {
-    const button = document.createElement("button");
-    button.classList.add("btn");
-    button.classList.add("btn-outline-primary");
-    button.classList.add("btn-lg");
-	button.classList.add("d-flex");
-	button.classList.add("p-0");
-	
-	const pts = document.createElement("div");
-	pts.classList.add("p-2");
-	pts.classList.add("border-end");
-	pts.classList.add("border-primary");
-	pts.innerHTML = points + "pts";
-	
-	const name = document.createElement("div");
-	name.classList.add("p-1");
-	name.classList.add("flex-grow-1");
-	name.innerHTML = choice;
-  
-    button.addEventListener('click', e => game.chooseTheme(choice));
-    buttonSpace.appendChild(button);
-	button.appendChild(pts);
-	button.appendChild(name);
-}

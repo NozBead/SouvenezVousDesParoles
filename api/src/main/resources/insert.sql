@@ -3,15 +3,15 @@ INSERT INTO song VALUES(1, 1,
 					"Ce rêve bleu - Aladdin", 
 					"je vire dérive et chavire dans un océan d’étoile",
 					"Sous le ciel de cristal, je me sens si légère", 
-					81,
+					75,
 					81,
 					NULL);
 INSERT INTO song VALUES(2, 1,
 					"L’air du vent - Pocahontas",
 					"les pleurs du chat sauvage au petit jour?",
 					"Comprends-tu le chant d'espoir du loup qui meurt d'amour",
-					53,
-					53,
+					69,
+					69,
 					NULL);
 
 INSERT INTO theme VALUES(2, "Duo", 4);
@@ -35,7 +35,7 @@ INSERT INTO song VALUES(5, 3,
 					"Les sunlights des tropiques - Gilbert Montagné",
 					"j’ai dessiné sur ta peau un palmier au bord de l’eau",
 					"Oh, prends-moi la main, viens danser",
-					134,
+					133,
 					134,
 					NULL);
 INSERT INTO song VALUES(6, 3,
@@ -95,11 +95,12 @@ INSERT INTO song VALUES(12, 6,
 					NULL);
 
 INSERT INTO theme VALUES(7, "Les années 2010", 2);
+-- CHECKED
 INSERT INTO song VALUES(13, 7,
 					"Dernière danse - Indila",
 					"dans tout Paris , je m’abandonne",
 					"Est-ce mon tour? Vient la douleur",
-					77,
+					74,
 					77,
 					NULL);
 INSERT INTO song VALUES(14, 7,
@@ -115,7 +116,7 @@ INSERT INTO song VALUES(15, 8,
 					"Dis moi - BB Brunes",
 					"lors-que t’embrasse ces gars",
 					"Une violente envie de descente",
-					42,
+					41,
 					42,
 					NULL);
 INSERT INTO song VALUES(16, 8,
@@ -147,8 +148,8 @@ INSERT INTO song VALUES(19, 10,
 					"La Seine - Vanessa Paradis",
 					"entre les eaux , l’air est si bon",
 					"Sur le Pont des Arts, Mon cœur vacille",
-					109,
-					109,
+					107,
+					107,
 					NULL);
 INSERT INTO song VALUES(20, 10,
 					"Au Champ-Elysées - Joe Dassin",
@@ -191,11 +192,12 @@ INSERT INTO song VALUES(24, 12,
 					NULL);
 					
 INSERT INTO theme VALUES(13, "Couleur", 1);
+-- CHECKED
 INSERT INTO song VALUES(25, 13,
 					"Les mots bleus - Christophe",
 					"parler me semble ridicule",
 					"Les mots qu'on dit avec les yeux",
-					47,
+					46,
 					47,
 					NULL);
 INSERT INTO song VALUES(26, 13,
@@ -207,6 +209,7 @@ INSERT INTO song VALUES(26, 13,
 					NULL);
 
 INSERT INTO theme VALUES(14, "Monde", 1);
+-- CHECKED
 INSERT INTO song VALUES(27, 14,
 					"Un monde parfait - Ilona Mitrecey",
 					"du bleu du rouge",
@@ -214,26 +217,29 @@ INSERT INTO song VALUES(27, 14,
 					30,
 					30,
 					NULL);
+-- CHECKED
 INSERT INTO song VALUES(28, 14,
 					"Un autre monde - Téléphone",
 					"où la lune serait blonde",
 					"Où la terre serait ronde",
-					63,
+					62,
 					63,
 					NULL);
 					
 INSERT INTO theme VALUES(15, "Malade", 1);
+-- CHECKED
 INSERT INTO song VALUES(29, 15,
 					"La fièvre - Julien Doré",
 					"quelques vertèbres",
 					"Il s'est déplacé",
-					19,
+					17,
 					19,
 					NULL);
+-- CHECKED
 INSERT INTO song VALUES(30, 15,
 					"Je suis malade - Lara Fabian",
 					"de vivre ma vie",
 					"Je n'ai plus envie",
-					37,
+					34,
 					37,
 					NULL);
