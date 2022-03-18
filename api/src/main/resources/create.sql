@@ -5,7 +5,6 @@ CREATE TABLE song (
 	name TEXT,
 	lyrics TEXT,
 	context TEXT,
-	context_time INTEGER,
 	guess_time INTEGER,
 	video BLOB,
 	CONSTRAINT pk_song PRIMARY KEY (id),
@@ -13,7 +12,6 @@ CREATE TABLE song (
 	CONSTRAINT forced_name CHECK (name NOT NULL)
 	CONSTRAINT forced_lyrics CHECK (lyrics NOT NULL),
 	CONSTRAINT forced_context CHECK (context NOT NULL),
-	CONSTRAINT forced_context_time CHECK (context_time NOT NULL),
 	CONSTRAINT forced_guess_time CHECK (guess_time NOT NULL)
 );
 

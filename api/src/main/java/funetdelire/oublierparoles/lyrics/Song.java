@@ -5,15 +5,13 @@ public class Song {
 	private String name;
 	private String lyrics;
 	private String context;
-	private int contextTime;
 	private int guessTime;
 	
-	public Song(int id, String name, String lyrics, String context, int contextTime, int guessTime) {
+	public Song(int id, String name, String lyrics, String context, int guessTime) {
 		this.id = id;
 		this.name = name;
 		this.lyrics = lyrics;
 		this.context = context;
-		this.contextTime = contextTime;
 		this.guessTime = guessTime;
 	}
 
@@ -55,13 +53,5 @@ public class Song {
 	
 	public void setGuessTime(int guessTime) {
 		this.guessTime = guessTime;
-	}
-
-	public int getContextTime() {
-		return contextTime;
-	}
-
-	public void setContextTime(int contextTime) {
-		this.contextTime = contextTime;
 	}
 }

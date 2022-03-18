@@ -2,7 +2,7 @@ class LyricsGame {
 	themes = {};
 	
 	guessTimeoutId;
-	contextTimeoutId;
+
 	currentTheme;
 	currentSong;
 	
@@ -14,10 +14,9 @@ class LyricsGame {
 	
 	guessManager;
 
-    constructor (spaces, api, guessManager) {
+    constructor (spaces, api) {
 		this.spaces = spaces;
         this.songApi = api;
-		this.guessManager = guessManager;
     }
 	
 	clean() {
@@ -62,18 +61,16 @@ class LyricsGame {
 		}
 	}
 	
-	startGuessTime(currentTime) {
+	stopGuessTime() {
 		if (this.guessTimeoutId != undefined) {
 			clearTimeout(this.guessTimeoutId);
 		}
-		if (this.contextTimeoutId != undefined) {
-			clearTimeout(this.contextTimeoutId);
-		}
-		
-		let contextTime = (this.currentSong['contextTime'] - currentTime) * 1000;
+	}
+	
+	startGuessTime(currentTime) {
+		this.stopGuessTime();
 		let guessTime = (this.currentSong['guessTime'] - currentTime) * 1000;
 		this.guessTimeoutId = setTimeout(this.currentSongView.drawGuess.bind(this.currentSongView), guessTime);
-		this.contextTimeoutId = setTimeout(this.currentSongView.drawContext.bind(this.currentSongView), contextTime);
 	}
 }
 
@@ -184,6 +181,8 @@ class SongView extends LyricsView {
 			this.game.startGuessTime(video.currentTime);
 		});
 		
+		video.addEventListener("pause", this.game.stopGuessTime);
+		
 		const source = document.createElement("source");
 		source.type = "video/mp4";
 		source.src = this.url;
@@ -196,9 +195,6 @@ class SongView extends LyricsView {
 	
 	drawGuess() {
 		this.guessManager.draw();
-	}
-
-	drawContext() {
 		this.spaces.contextSpace.innerHTML = this.song['context'];
 		this.hideSong();
 	}

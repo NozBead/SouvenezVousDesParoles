@@ -70,12 +70,12 @@ public class SongsData {
 		Theme theme = new Theme();
 		try {
 			PreparedStatement statement = sqliteCon.prepareStatement(
-					"SELECT song.id, song.name, theme.name, lyrics, context, context_time, guess_time FROM song, theme WHERE theme = ? AND song.theme = theme.id");
+					"SELECT song.id, song.name, theme.name, lyrics, context, guess_time FROM song, theme WHERE theme = ? AND song.theme = theme.id");
 			statement.setInt(1, themeId);
 			ResultSet result = statement.executeQuery();
 			while (result.next()) {
 				Song s;
-				s = new Song(result.getInt(1), result.getString(2), result.getString(4), result.getString(5), result.getInt(6), result.getInt(7));
+				s = new Song(result.getInt(1), result.getString(2), result.getString(4), result.getString(5), result.getInt(6));
 				theme.addSong(s);
 				theme.setName(result.getString(3));
 			}
