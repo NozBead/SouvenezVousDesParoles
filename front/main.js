@@ -358,7 +358,7 @@ let spaces = {
 	titleSpace: document.querySelector("#titlespace"),
 	answerSpace: document.querySelector("#answerspace")
 }
-let api = new SongApi("http://localhost:8080");
+let api = new SongApi("http://funetdelire.fr:8080");
 let game = new LyricsGame(spaces, api);
 api.downloadThemes(5)
 	.then(e => {
