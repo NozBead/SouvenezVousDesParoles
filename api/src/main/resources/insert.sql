@@ -18,7 +18,7 @@ INSERT INTO theme VALUES(2, "Duo", 4);
 INSERT INTO song VALUES(3, 2,
 					"Sous le vent - Céline Dion / Garou",
 					"c’est juste une pause , un répit",
-					"Et si tu crois que c'est fini\nJamais",
+					"Et si tu crois que c'est fini Jamais",
 					77,
 					77,
 					NULL);
@@ -57,7 +57,7 @@ INSERT INTO song VALUES(7, 4,
 INSERT INTO song VALUES(8, 4,
 					"La vie en rose - Edith Piaf",
 					"c’est lui pour moi, moi pour lui dans la vie",
-					"Il est entré dans mon cœur\nUne part de bonheur\nDont je connais la cause",
+					"Il est entré dans mon cœur Une part de bonheur Dont je connais la cause",
 					66,
 					66,
 					NULL);
