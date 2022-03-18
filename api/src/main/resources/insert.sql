@@ -6,6 +6,7 @@ INSERT INTO song VALUES(1, 1,
 					"Sous le ciel de cristal, je me sens si légère", 
 					74,
 					NULL);
+-- CHECKED
 INSERT INTO song VALUES(2, 1,
 					"L’air du vent - Pocahontas",
 					"les pleurs du chat sauvage au petit jour?",
