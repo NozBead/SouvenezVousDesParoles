@@ -54,10 +54,15 @@ class ParolesGame {
 	
 	chooseSong(idx) {
 		this.parolesView.cleaner();
-		let song = this.currentTheme['songs'][idx]
-		let url = this.songApi.getSongUrl(song['id'])
-		this.currentSong = song;
-		this.parolesView.songDrawer(url, song);
+		if (idx == -1) {
+			this.proposeThemes();
+		}
+		else {
+			let song = this.currentTheme['songs'][idx]
+			let url = this.songApi.getSongUrl(song['id'])
+			this.currentSong = song;
+			this.parolesView.songDrawer(url, song, this.currentTheme['difficulty']*10);
+		}
 	}
 	
 	startGuessTime(currentTime) {
@@ -144,37 +149,83 @@ const buttonSpace = document.querySelector("#buttonspace");
 const space = document.querySelector("#space");
 const guessSpace = document.querySelector("#guessspace");
 const contextSpace = document.querySelector("#contextspace");
+const titleSpace = document.querySelector("#titlespace");
+const answerSpace = document.querySelector("#answerspace");
 
 function clean() {
 	buttonSpace.innerHTML = "";
+	guessSpace.innerHTML = "";
+	contextSpace.innerHTML = "";
+	titleSpace.innerHTML = "";
+	answerSpace.innerHTML = "";
+	hiddenGuess = "";
+	inputGuess = [];
+	const video = document.querySelector("#karaoke");
+	if (video) {
+		video.remove();
+	}
 }
 
-let inputGuess = []
-function drawGuess(toGuess) {
-	guessSpace.innerHTML = toGuess.replaceAll(/[a-zA-Z]/g, "_");
-	/*document.addEventListener("keydown", e => {
-		if (e.key == 'Backspace') {
-			inputGuess.pop();
-		}
-		else if (e.key == 'Enter') {
-			if (inputGuess.length == toGuess.length) {
-				
+let hiddenGuess = "";
+let inputGuess = [];
+function refreshInput() {
+	let display = "";
+	const inputIt = inputGuess.entries();
+	for (let c of hiddenGuess) {
+		if (c == '_') {
+			const result = inputIt.next();
+			if (result.done) {
+				display += '_';
+			}
+			else {
+				display += result.value[1];
 			}
 		}
 		else {
-			let c = e.key.at(0)
-			if (c > 'a' && c < 'A') {
-				inputGuess.push(c);	
+			display += c;
+		}
+	}
+
+	guessSpace.innerHTML = display;
+}
+
+const regex = '[a-zA-Zéêàèçù]';
+const regexG = new RegExp(regex,'g');
+const regexI = new RegExp(regex,'i');
+function drawGuess(toGuess) {
+	hiddenGuess = toGuess.replaceAll(regexG, "_");
+	guessSpace.innerHTML = hiddenGuess;
+
+	const button = document.createElement("button");
+    button.classList.add("btn");
+    button.classList.add("btn-outline-primary");
+    button.classList.add("btn-lg");
+	let handler = e => {
+		if (e.key == 'Backspace') {
+			inputGuess.pop();
+			refreshInput();
+		}
+		else if (e.key == 'Enter') {
+			answerSpace.innerHTML = "Réponse :<br>" + toGuess;
+			document.removeEventListener("keydown", handler);
+			createSongButton("Round suivant", -1);
+		}
+		else {
+			let c = e.key.at(0);
+			if (regexI.test(c)) {
+				inputGuess.push(c);
+				refreshInput();
 			}
 		}
-	});*/
+	};
+	document.addEventListener("keydown", handler);
 }
 
 function drawContext(context) {
 	contextSpace.innerHTML = context;
 }
 
-function drawSong(url, song) {
+function drawSong(url, song, pts) {
 	const video = document.createElement("video");
 	video.classList.add("h-50");
 	video.classList.add("w-50");
@@ -189,6 +240,8 @@ function drawSong(url, song) {
 	const source = document.createElement("source");
 	source.type = "video/mp4";
 	source.src = url;
+
+	titleSpace.innerHTML = song['name'] + " " + pts + "pts";
 	
 	space.prepend(video);
 	video.append(source);
