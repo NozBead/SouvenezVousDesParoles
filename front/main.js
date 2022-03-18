@@ -246,7 +246,7 @@ class GuessManagerView extends LyricsView {
 		let direction;
 		if (inputChar == -1) {
 			let notFound = true;
-			while (this.idxGuess > 0 && notFound && this.idxGuess < this.hiddenGuess.length) {
+			while (this.idxGuess > 0 && notFound) {
 				this.idxGuess--;
 				if (this.normalCharI.test(this.hiddenGuess[this.idxGuess])) {
 					notFound = false;
@@ -254,10 +254,10 @@ class GuessManagerView extends LyricsView {
 			}
 			this.hiddenGuess[this.idxGuess] = '_';
 		}
-		else {
+		else if (this.idxGuess < this.hiddenGuess.length) {
 			this.hiddenGuess[this.idxGuess] = inputChar;
 			let notFound = true;
-			while (this.idxGuess >= 0 && notFound && this.idxGuess < this.hiddenGuess.length) {
+			while (notFound && this.idxGuess < this.hiddenGuess.length) {
 				this.idxGuess++;
 				if (this.hiddenGuess[this.idxGuess] == '_') {
 					notFound = false;
