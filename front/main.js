@@ -286,7 +286,7 @@ class GuessManagerView extends LyricsView {
 		}
 		else {
 			let c = e.key.at(0);
-			if (this.normalCharI.test(c)) {
+			if (e.key.length == 1 && this.normalCharI.test(c)) {
 				this.refreshInput(c);
 			}
 		}
@@ -358,7 +358,7 @@ let spaces = {
 	titleSpace: document.querySelector("#titlespace"),
 	answerSpace: document.querySelector("#answerspace")
 }
-let api = new SongApi("http://funetdelire.fr:8080");
+let api = new SongApi("http://localhost:8080");
 let game = new LyricsGame(spaces, api);
 api.downloadThemes(5)
 	.then(e => {
